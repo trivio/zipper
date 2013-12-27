@@ -1,4 +1,4 @@
-Zipper
+Zipper [![Build Status](https://travis-ci.org/trivio/zipper.png)](https://travis-ci.org/trivio/zipper)
 ======
 
 A datastructure, first described by Huet, is used to traverse and 
