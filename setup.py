@@ -13,7 +13,7 @@ except IOError:
 setup(
   name='zipper',
   py_modules = ['zipper'],
-  version='0.0.1',
+  version='0.0.2',
   description=('Functional hierarchical zipper, with navigation, '
                'editing, and enumeration.  See Huet'),
   long_description=README,
