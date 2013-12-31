@@ -58,12 +58,7 @@ class Loc(namedtuple('Loc', ('current','path', 'is_branch', 'get_children', 'mak
     return self.is_branch(self.current)
 
   def root(self):
-    loc = self
-    while loc.path:
-      loc = loc.up()
-    return loc.current
-
-
+    return self.top().current
 
   ## Navigation
   def down(self):
@@ -91,7 +86,32 @@ class Loc(namedtuple('Loc', ('current','path', 'is_branch', 'get_children', 'mak
           )
         else:
           return self._replace(current=pnode,path=ppath)
-              
+
+  def top(self):
+    loc = self
+    while loc.path:
+      loc = loc.up()
+    return loc
+
+  def ancestor(self,filter):
+    """
+    Return the first ancestor preceding the current loc that
+    matches the filter(ancestor) function. 
+
+    The filter function is invoked with the location of the
+    next ancestor. If the filter function returns true then
+    the ancestor will be returned to the invoker of 
+    loc.ancestor(filter) method. Otherwise the search will move
+    to the next ancestor until the top of the tree is reached.
+    """
+
+    u = self.up()
+    while u:
+      if filter(u):
+        return u
+      else:
+        u = u.up()
+            
   def left(self):
     if self.path and self.path.l:
       ls, r = self.path[:2]
@@ -156,7 +176,35 @@ class Loc(namedtuple('Loc', ('current','path', 'is_branch', 'get_children', 'mak
     loc = self
     while loc.branch():
       loc = loc.down().rightmost()
-    return loc 
+    return loc
+
+  def move_to(self, dest):
+    """
+    Move to the same 'position' in the tree as the given loc and return
+    the loc that currently resides there. This method does not gurantee
+    that the node from the previous loc will be the same node if the node
+    or it's ancestory has bee modified.
+    """
+
+    moves = []
+    path = dest.path
+
+    while path:
+      moves.extend(len(path.l) * ['r'])
+      moves.append('d')
+      path = path.ppath
+
+    moves.reverse()
+
+    loc = self.top()
+    for m in moves:
+      if m == 'd':
+        loc = loc.down()
+      else:
+        loc = loc.right()
+
+    return loc
+
 
 
   ## Enumeration

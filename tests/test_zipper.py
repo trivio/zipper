@@ -203,3 +203,64 @@ def test_edit():
     top.down().edit(lambda node, k: node+k, 1).root(),
     [2, [2,3], 4]
   )
+
+def test_move_to():
+  top = zipper.list([1, [2,3, [4,[5,6]]], [7,8]])
+
+  n = top.down().right().down().right().right().down()
+  eq_(
+    n.node(),
+    4
+  )
+
+  right_most = n.top().rightmost_descendant()
+  eq_(
+    right_most.node(),
+    8
+  )
+
+  eq_(
+    right_most.move_to(n).node(),
+    4
+  )
+
+def test_ancestor():
+  top = zipper.list([1, [2,3, [4,[5,6]]], [7,8]])
+
+  n = top.down().right().down().right().right().down().right().down()
+  eq_(
+    n.node(),
+    5
+  )
+
+  # This is the equivalent of up
+  eq_( 
+    n.ancestor(lambda l: True).node(),
+    [5,6]
+  )
+
+  # this filter returns ancestor with 2 elements
+  f = lambda l: len(l.node()) % 2 == 0
+
+  loc = n.ancestor(f)
+
+  eq_(
+    loc.node(),
+    [5,6]
+  )
+
+  loc = loc.ancestor(f) 
+  eq_(
+    loc.node(),
+    [4,[5,6]]
+  )
+
+  loc = loc.ancestor(f) 
+  eq_(
+    loc,
+    None
+  )
+
+
+
+
