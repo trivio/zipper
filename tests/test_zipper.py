@@ -261,6 +261,15 @@ def test_ancestor():
     None
   )
 
+def test_find():
+  top = zipper.list([1, [2,3, [4,[5,6]]], [7,8]])
+
+  loc = top.find(lambda loc: loc.node() == 7)
+
+  eq_(
+    loc.node(),
+    7
+  )
 
 
 

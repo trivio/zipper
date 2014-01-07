@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-Path=namedtuple('Path', ('l', 'r', 'pnodes', 'ppath', 'changed'))
+Path=namedtuple('Path', 'l, r, pnodes, ppath, changed')
 
 
 def isa(type):
@@ -41,7 +41,7 @@ def zipper(root, is_branch, children, make_node):
   return Loc(root, None, is_branch, children, make_node)
   
 
-class Loc(namedtuple('Loc', ('current','path', 'is_branch', 'get_children', 'make_node'))):
+class Loc(namedtuple('Loc', 'current, path, is_branch, get_children, make_node')):
 
   def __repr__(self):
     return "<zipper.Loc({}) object at {}>".format(self.current, id(self))
@@ -59,6 +59,9 @@ class Loc(namedtuple('Loc', ('current','path', 'is_branch', 'get_children', 'mak
 
   def root(self):
     return self.top().current
+
+  def at_end(self):
+    return not bool(self.path)
 
   ## Navigation
   def down(self):
@@ -169,13 +172,22 @@ class Loc(namedtuple('Loc', ('current','path', 'is_branch', 'get_children', 'mak
   def leftmost_descendant(self):
     loc = self
     while loc.branch():
-      loc = loc.down()
+      d = loc.down()
+      if d:
+        loc = d
+      else:
+        break
+
     return loc
 
   def rightmost_descendant(self):
     loc = self
     while loc.branch():
-      loc = loc.down().rightmost()
+      d = loc.down()
+      if d:
+        loc = d.rightmost()
+      else:
+        break
     return loc
 
   def move_to(self, dest):
@@ -337,6 +349,16 @@ class Loc(namedtuple('Loc', ('current','path', 'is_branch', 'get_children', 'mak
       return self._replace(current=value, path=self.path._replace(changed=True))
     else:
       return self._replace(current=value)
+
+  def find(self, func):
+    loc = self.leftmost_descendant()
+    while True:
+      if func(loc):
+        return loc
+      elif loc.at_end():
+        return None
+      else:
+        loc = loc.postorder_next()
 
   def remove(self):
     """
