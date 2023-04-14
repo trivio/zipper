@@ -245,7 +245,7 @@ class Loc(namedtuple('Loc', 'current, path, is_branch, get_children, make_node')
     See preorder_iter for an example.
     """
 
-    if self.path is ():
+    if self.path == ():
       return None
 
     n = self.down() or self.right()
